@@ -1,3 +1,4 @@
+// ...existing code...
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
@@ -41,7 +42,6 @@ namespace HotelServiceAPI.Data
                 entity.Property(e => e.Content).IsRequired();
                 entity.Property(e => e.ImageUrl).HasMaxLength(500);
                 entity.Property(e => e.Quote).HasMaxLength(500);
-                
                 // Explicit AuthorId -> User relationship
                 entity.HasOne(b => b.Author)
                       .WithMany()
@@ -57,11 +57,9 @@ namespace HotelServiceAPI.Data
             //     entity.Property(e => e.Content).IsRequired().HasMaxLength(1000);
             //     entity.Property(e => e.GuestName).HasMaxLength(100);
             //     entity.Property(e => e.GuestEmail).HasMaxLength(100);
-            //     
             //     // Explicit property configurations
             //     entity.Property(e => e.BlogId).IsRequired();
             //     entity.Property(e => e.UserId).IsRequired(false);
-            //     
             //     // Blog relationship only
             //     entity.HasOne(c => c.Blog)
             //           .WithMany()
@@ -80,7 +78,6 @@ namespace HotelServiceAPI.Data
                 entity.Property(e => e.Icon).HasMaxLength(50);
                 entity.Property(e => e.Category).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.Price).HasColumnType("decimal(18,2)");
-                
                 // Explicit CreatedBy -> User relationship  
                 entity.Property(e => e.CreatedBy).IsRequired();
                 entity.HasOne<User>()
@@ -89,6 +86,24 @@ namespace HotelServiceAPI.Data
                       .HasConstraintName("FK_Services_Users_CreatedBy")
                       .OnDelete(DeleteBehavior.Restrict);
             });
+        }
+
+        // Seed admin user
+        public void SeedAdminUser()
+        {
+            if (!Users.Any(u => u.Email == "admin@hotel.com"))
+            {
+                Users.Add(new User
+                {
+                    FirstName = "Admin",
+                    LastName = "User",
+                    Email = "admin@hotel.com",
+                    Password = BCrypt.Net.BCrypt.HashPassword("admin123"),
+                    Role = "Admin",
+                    CreatedAt = DateTime.UtcNow
+                });
+                SaveChanges();
+            }
         }
     }
 }
